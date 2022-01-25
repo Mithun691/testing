@@ -1,0 +1,383 @@
+%
+% This is the LaTeX template file for lecture notes for CS294-8,
+% Computational Biology for Computer Scientists.  When preparing 
+% LaTeX notes for this class, please use this template.
+%
+% To familiarize yourself with this template, the body contains
+% some examples of its use.  Look them over.  Then you can
+% run LaTeX on this file.  After you have LaTeXed this file then
+% you can look over the result either by printing it out with
+% dvips or using xdvi.
+%
+% This template is based on the template for Prof. Sinclair's CS 270.
+
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{graphics}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\setlength{\oddsidemargin}{0.25 in}
+\setlength{\evensidemargin}{-0.25 in}
+\setlength{\topmargin}{-0.6 in}
+\setlength{\textwidth}{6.5 in}
+\setlength{\textheight}{8.5 in}
+\setlength{\headsep}{0.75 in}
+\setlength{\parindent}{0 in}
+\setlength{\parskip}{0.1 in}
+
+%
+% The following commands set up the lecnum (lecture number)
+% counter and make various numbering schemes work relative
+% to the lecture number.
+%
+\newcounter{lecnum}
+\renewcommand{\thepage}{\thelecnum-\arabic{page}}
+\renewcommand{\thesection}{\thelecnum.\arabic{section}}
+\renewcommand{\theequation}{\thelecnum.\arabic{equation}}
+\renewcommand{\thefigure}{\thelecnum.\arabic{figure}}
+\renewcommand{\thetable}{\thelecnum.\arabic{table}}
+
+%
+% The following macro is used to generate the header.
+%
+\newcommand{\lecture}[4]{
+%   \pagestyle{myheadings}
+   \thispagestyle{plain}
+   \newpage
+   \setcounter{lecnum}{#1}
+   \setcounter{page}{1}
+   \noindent
+   \begin{center}
+   \framebox{
+      \vbox{\vspace{2mm}
+    \hbox to 6.28in { {\bf CS 419M Introduction to Machine Learning
+                        \hfill Spring 2021-22} }
+       \vspace{4mm}
+       \hbox to 6.28in { {\Large \hfill Lecture #1: #2  \hfill} }
+       \vspace{2mm}
+       \hbox to 6.28in { {\it Lecturer: #3 \hfill Scribe: #4} }
+      \vspace{2mm}}
+   }
+   \end{center}
+   \markboth{Lecture #1: #2}{Lecture #1: #2}
+}
+
+%
+% Convention for citations is authors' initials followed by the year.
+% For example, to cite a paper by Leighton and Maggs you would type
+% \cite{LM89}, and to cite a paper by Strassen you would type \cite{S69}.
+% (To avoid bibliography problems, for now we redefine the \cite command.)
+% Also commands that create a suitable format for the reference list.
+% \renewcommand{\cite}[1]{[#1]}
+% \def\beginrefs{\begin{list}%
+%         {[\arabic{equation}]}{\usecounter{equation}
+%          \setlength{\leftmargin}{2.0truecm}\setlength{\labelsep}{0.4truecm}%
+%          \setlength{\labelwidth}{1.6truecm}}}
+% \def\endrefs{\end{list}}
+% \def\bibentry#1{\item[\hbox{[#1]}]}
+
+%Use this command for a figure; it puts a figure in wherever you want it.
+%usage: \fig{NUMBER}{SPACE-IN-INCHES}{CAPTION}
+% \newcommand{\fig}[3]{
+% 			\vspace{#2}
+% 			\begin{center}
+% 			Figure \thelecnum.#1:~#3
+% 			\end{center}
+% 	}
+% Use these for theorems, lemmas, proofs, etc.
+\newtheorem{theorem}{Theorem}[lecnum]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+% \newenvironment{proof}{{\bf Proof:}}{\hfill\rule{2mm}{2mm}}
+
+% **** IF YOU WANT TO DEFINE ADDITIONAL MACROS FOR YOURSELF, PUT THEM HERE:
+
+\begin{document}
+%FILL IN THE RIGHT INFO.
+%\lecture{**LECTURE-NUMBER**}{**DATE**}{**LECTURER**}{**SCRIBE**}
+\lecture{5}{Introduction to Regression}{Abir De}{Group 1}
+%\lecture{x}{Title}{Abir De}{Group y}
+
+\section{Introduction to Regression} 
+Let us consider, we are given a set of data : 
+\begin{equation*}
+    \{(x,y)\}
+\end{equation*}    
+Until this lecture we considered $y \in \{-1,+1\}$ but for this lecture now $y \in \mathbb{R}$. Here, our task is to find mapping from x to y.
+\begin{equation*}
+    x \mapsto y
+\end{equation*}
+
+\subsection{Applications of Regression}
+\begin{enumerate}
+    \item Prediction of house price
+    \item Time series prediction(like prediction of stocks and loans,etc.)
+    \item Sentiment Detection
+\end{enumerate}
+Like we take 1st example, in which you have location of house, nearer shops/houses and their prices etc. features are encoded and used for prediction of house price.
+
+Our task in this is that you are given a set of data  i.e. $(x_1,y_1) , (x_2,y_2) , (x_3,y_3), \ldots$ 
+and you have to find value of y when x is given for an unseen sample. Here, unseen means y is not known and x is not present during training.
+
+In this our goal is to come up with some function h(x) so that h(x) = y. Now, how can we make this function?
+Let us come to fundamental point,$( x_i , y_i )$ is given and we have to learn
+$h(x) = w^{T}x$
+so that
+
+$ y_i =w^{T}x$
+$y_1 = w^{T}x, y_2 = w^{T}x , \ldots, y_n = w^{T}x$
+means we just have to solve the following equation
+$[y_1 y_2 \ldots y_n] = w^{T}[x_1 x_2 \ldots x_n];
+Y = w^{T}X;$ Here $X = [x_1 x_2 \ldots x_n]
+$
+where $x_1, \ldots,x_n$ are column vector of length d and X is of size dxn.We just have to solve the above equation in given w. 
+
+\subsection{What happens when \texorpdfstring{$y \not \in \mathcal{R}(X)$}{}}
+Let us denote the row space of $X$ by $\mathcal{R}(X)$. We know that the equation $y = W^T X$ (or equivalently $y^T = X^T W$) can be solved if $y \in \mathcal{C}(X)$ (or equivalently $y^T \in \mathcal{C}(X^T)$. However, what if $y \not\in \mathcal{R}(X)$. Firstly, let us try to figure out how likely is this situation. Let us assume that $X \in \mathcal{R}^{d \times n}$, $y \in \mathcal{R}^{1 \times n} $ and $W \in \mathcal{R}^{d \times 1} $ \\
+Here, $n$ is the number of data-points and $d$ is the dimension of the feature vector for each data-point. Usually, the number of data-points in the dataset are much larger than the feature vector of every single data-point, i.e. $d << n$.
+\begin{equation}
+    \implies rank(X) = rank(X^T) \leq d
+\end{equation}
+
+Now, since $y$ is a $n$ dimensional vector and since $X$ cannot span entire $\mathcal{R}^n$, we can have $y \in \{\mathcal{R}^n \setminus \mathcal{R (X)}\}$ for which no solution ($W$) exists.
+
+% Then why are we considering the linear model in the first place?
+Also, we have not accounted for any measurement noise in our model. Given dataset $\{ (x_i , y_i) \}$ and a linear model $y = W^T X$, we may not get a feasible solution because even if the model is accurate, it is possible that $y \not \in \mathcal{R}(X)$ because $y$ can be contaminated with noise. Hence, we should instead consider the following model:
+\begin{equation}
+    y = W^T x + \epsilon
+\end{equation}
+where $\epsilon$ represents noise. Now, to estimate $W$ from the data using this model, we can assume some distribution for $\epsilon$ and then find the Maximum Likelihood estimate for $W$.
+
+\section{Mathematically formulating Linear Regression}
+\textbf{Case 1:}
+Let us assume that $\epsilon$ is a zero mean Gaussian random variable, i.e. 
+\begin{equation}
+    \epsilon \sim \mathcal{N} (0, \sigma^2)
+\end{equation}
+Then we can find the MLE (Maximum Likelihood Estimate) $\hat{W}$ for $W$ by solving the following optimisation problem
+
+\begin{equation*}
+    \hat{W} = \max_{W} \mathcal{P} (x_1, y_1, x_2, y_2, ... , x_n, y_n) 
+\end{equation*}
+where, $(x_i, y_i)$ are the elements of the dataset.
+
+Now, we can assume that the data-points $(x_i, y_i)$ are independent and hence we can factorize the joint distribution as,
+\begin{equation*}
+    \hat{W} = \max_{W} \mathcal{P} (x_1, y_1, x_2, y_2, ... , x_n, y_n) = \max_{W} \prod_{i = 1}^{n} \mathcal{P} (x_i, y_i)
+\end{equation*}
+Further, using the fact that $\epsilon$ is normally distributed as mentioned in equation (5.1), we can find the MLE $\hat{W}$ as,
+\begin{align*}
+        \hat{W} &= \max_{W} \prod_{i = 1}^{n} \exp ({- \frac{(y_i - W^T x_i)^2}{2\sigma^2}}) \\
+        &= \max_W \exp(-\sum_{i = 1}^{n} {\frac{(y_i - W^T x_i)^2}{2\sigma^2}}) \\
+        &= \min_{W} \sum_{i = 1}^{n} (y_i - W^T x_i)^2
+\end{align*}
+
+\textbf{Case 2:} Let us assume that $\epsilon$ follows Laplace distribution, i.e.
+\begin{equation}
+    \epsilon \sim Laplace(0 , b)
+\end{equation}
+\textit{Note:} 
+\begin{equation*}
+    Laplace (\mu, b) = \frac{1}{2b} \exp(- \frac{|x - \mu|}{b}) \quad \quad \forall x \in \mathbf{R} 
+\end{equation*}
+It can be shown that for this case, the MLE $\hat{W}$ of $W$ is given as,
+\begin{equation*}
+    \hat{W} = \min_W \sum_{i \in D} |y_i - W^T x_i|
+\end{equation*}
+
+Now, let us try to find the solution for the optimisation problem in case 1.
+
+\begin{equation*}
+    \begin{aligned}
+    \min_W \sum_{i \in D} (y_i - W^T x_i)^2 & = \min_W \sum_{i \in D} (y_i^2 + (W^T x_i)^2 - 2 W^T x_i y_i)\\
+    &= \min_W \sum_{i \in D} (y_i^2 + x_i^TWW^Tx_i - 2 W^T x_i y_i)
+    \end{aligned}
+\end{equation*}
+Since, this is the case of unconstrained optimisation, we take gradient of the objective function w.r.t $W$ to get the following equality,
+\begin{equation*}
+    \begin{aligned}
+        \sum_{i \in D} ( 0 - 2x_iy_i - 2(x_ix_i^T)W^*) = 0 \\
+        \implies \sum_{i \in D} (x_i x_i^T) W^* = \sum_{i \in D} (x_i y_i)\\
+    \end{aligned}
+\end{equation*}
+\begin{equation}
+        \mathbf{ \implies  W^* = (\sum_{i \in D} (x_i x_i^T))^{-1} \sum_{i \in D} (x_i y_i)}   
+\end{equation}
+
+
+
+% Suppose you have a set of \textbf{Data}. This can be
+% \begin{itemize}
+%     \item A set of images $\xrightarrow{m_\theta}$ identify the objects
+%     \item A set of paragraphs $\xrightarrow{m_\theta}$ identify the topics 
+% \end{itemize}
+% where $m_\theta$ denotes a model with parameters $\theta$. The objective is to devise a model which learns to do a task. The following question can be posed:
+% \begin{flushleft}
+% Q. \textbf{What is the underlying thesis/concept behind the hope that it will be possible to train the model $m_\theta$ to get an accurate output?}\\
+
+% Ans. \color{blue}
+% \textbf{The law of large numbers}
+% \end{flushleft}
+
+% \subsection{The Law of Large Numbers and Central Limit Theorem}
+% Suppose that we have $N$ samples $X_i \sim f(\cdot), \:\:\: i = 1, \hdots, N$ drawn from an unknown distribution. Most of the times, the goal of machine learning is to estimate the distribution $f$ or its properties. For example, in the task of generating images (GAN, VAE etc), the objective of the machine learning model is to identify the underlying distribution of the data samples. Being able to learn the underlying distribution is important even for tasks like housing price prediction, image classification etc because if a test sample is sampled from a different distribution is given to the model, the model will likely fail and give incorrect results. 
+% \begin{flushleft}
+% Q. \textbf{What is the least that can be found about $f$ using $X_1, \hdots, X_N$?}\\
+
+% Ans. \color{blue} Central Limit Theorem states that as long as $N$ is large, the $$\mathbb{E}_{X \sim f(\cdot)}[X] = \frac{\sum X_i}{N}$$
+% The Law of Large Numbers further states that
+% $$\mathbb{E}_{X \sim f(\cdot)}[X] \xrightarrow{}\frac{\sum X_i}{N}$$
+% as $N \xrightarrow{} \infty$. Moreover, the random variable $Z_N = \frac{\sum X_i}{N}$ follows the normal distribution $\mathcal{N}(\mathbb{E}[X], \sigma^2)$
+% with $\sigma^2 \propto \frac{1}{N}$ with
+% $$\lim \limits_{N \xrightarrow{}\infty}\mathbb{E}[Z_N] = \mathbb{E}[X]$$
+% \end{flushleft}
+% \begin{flushleft}
+% Q. \textbf{What else do we need to completely characterize $f$?}\\
+
+% Ans. \color{blue} \textbf{We need the higher order moments!} Using these the moment generating function can be obtained.
+% \end{flushleft}
+
+% \definition{The moment generating function (MGF) $F(s)$ for a random variable $X$ is defined as the Laplace Transform of the probability density function (PDF) $f(x)$. The inverse Laplace Transform of MGF will give the PDF.
+% $$F(s) = \int \limits_{-\infty}^\infty e^{-sx}\, f(x)\, dx$$
+% $$f(x) = \int \limits_{-\infty}^\infty e^{sx}\, F(s)\, ds$$}
+
+% \proposition{Using only the moments, the MGF can be determined.}
+% \begin{proof}
+% \begin{eqnarray*}
+% F(s) &=& \int \limits_{-\infty}^\infty e^{-sx}\, f(x)\, dx\\
+% &=& \int \limits_{-\infty}^\infty \sum \limits_{k = 0}^{\infty} \frac{(-s)^k\, x^k}{k!}\, f(x)\, dx\\
+% &=& \sum \limits_{k = 0}^{\infty} \frac{(-s)^k}{k!}\, \mathbb{E}[X^k]
+% \end{eqnarray*}
+% \begin{flushleft}
+% Note: The discussion about the region of convergence of the Laplace transform is out of the scope of this course.
+% \end{flushleft}
+% \end{proof}
+
+% \proposition{
+% Using just the $N$ samples $X_i \sim f(\cdot), \:\:\: i = 1, \hdots, N$, the PDF $f$ can be estimated using the Law of Large Numbers.
+% }
+% \begin{proof}
+% This can be proved as follows:
+% \begin{enumerate}
+%     \item All moments $\mathbb{E}[X^k]$ can be estimated by invoking the Law of Large Numbers
+%     \item The MGF can be found by invoking the Claim 1.2 above.
+%     \item $f$ can be estimated by taking the inverse Laplace Transform of the MGF
+% \end{enumerate}
+% \end{proof}
+
+% \subsection{Practice Problems}
+% \normalfont
+% \begin{enumerate}
+%     \item  A fair coin is tossed 5 times. Find  $\mathbb{P}(\#H > \# T)$\\
+%     \color{blue}It is easy to see that as 5 is odd, there is not possibility of $\#H = \#T$. Hence $\mathbb{P}(\#H > \# T) = 1/2$
+%     \color{black}
+%     \item $X \sim f(\cdot), Y \sim g(\cdot)$. Then $Z = X+Y \sim \:?$\\
+%     \color{blue} \begin{eqnarray*}
+%     \mathbb{P}(Z \leq z) &=& \mathbb{P}(X+Y \leq z)\\
+%                         &=& \int \limits_{-\infty}^\infty \int \limits_{-\infty}^{z-x}f(x) \, g(y) \, dx\,dy\\
+%                         &=& \int \limits_{-\infty}^\infty f(x)\, G(z-x) \, dx
+%     \end{eqnarray*}
+%     On differentiating, we get
+%     $$f_Z(z) = \int \limits_{-\infty}^\infty f(x) g(z-x)\,dx = (f * g)(z)$$
+% \end{enumerate}
+% \section{Linear Algebra}
+% Solve the following problems:
+% \begin{enumerate}
+%     \item For two square matrices $A, B$of size $n\times n$ if $AB = BA$ for all B, then show that $A = cI_n$ for some $c \in \mathbb{R}$\\
+%     \color{blue}
+%     Pick $B$ to be a diagonal matrix with pair-wise distinct elements. Then it can be shown that $A$ is also a diagonal matrix. Now pick $B$ to be a matrix with all ones, i.e. $B = [1]_{ij}$. As $A$ is diagonal, $AB=BA$ implies all diagonal entries of $A$ are equal i.e., $A = cI_n$ for some $c \in \mathbb{R}$
+%     \color{black}
+%     \item If $x^\top A x = 0\:\: \forall x \in \mathbb{R}^n$ then show that $A$ is skew-symmetric.\\
+%     \color{blue}
+%     On differentiating the above equation we get
+%     $$(A + A^\top)x = 0 \:\: \forall x \in \mathbb{R}^n$$
+%     This implies $A = -A^\top$
+%     \color{black}
+%     \item Show that $\text{rank}(AB) \leq \text{rank}(A)$\\
+%     \color{blue} Each column of $AB$ can be viewed as a linear combination of columns of $A$. Hence, if the dimension of column space of $A$ is $r$, the dimension of column space of $AB$ cannot be more than $r$. In other words,
+%     $\text{rank}(AB) \leq \text{rank}(A)$
+%     \color{black}
+%     \item Suppose you have a uniform sampler which samples uniformly from $[0, 1]$. Propose an algorithm which uses this uniform sampler to generate samples from any given distribution.\\
+%     \color{blue}
+%     Suppose we have a uniform random variable $U \sim \text{Uniform}([0, 1])$. We need to find a function $g$ such that the PDF of the random variable $g(U)$ will be same as that of the given distribution, say $f$. That is $g(U) \sim f$. Which is same as
+%     \begin{eqnarray*}
+%     \mathbb{P}(g(U) \leq x) &=& \mathbb{P}(U \leq g^{-1}(x))\\
+%     \implies \int \limits_{-\infty}^x f(x) \, dx &=& \int \limits_{-\infty}^{g^{-1}(x)} 1 \, du\\
+%     \implies F(x) &=& g^{-1}(x)\\
+%     \implies g &=& F^{-1}
+%     \end{eqnarray*}
+%     \color{black}
+% \end{enumerate}
+
+\section{Regularization : Overcoming singularity and ill-conditioning }
+
+\subsection{Under what conditions can W* be singular or ill-conditioned ?}
+We have the Maximum likelihood estimate of W* given by, 
+$${\mathbf{W^* = (X X^T)^{-1}(y^T X)}}$$
+Hence, the rank of ${\mathbf{X X^T}}$ needs to be investigated to check for singularity and the condition of the matrix.
+
+\textbf{Case 1:} ${n < d}$
+
+The number of features in a datapoint (d) is greater than the number of datapoints (n).
+\begin{equation}
+    rank(X X^T) \leq min(rank(X), rank(X^T))
+\end{equation}
+\begin{equation}
+    rank(X) = rank(X^T) = min(n,d) = n 
+\end{equation}
+\begin{equation}
+    (5.6), (5.7) \implies rank(X X^T) \leq rank(X) \leq n 
+\end{equation}
+Since, ${\mathbf{X X^T}}$ is a d*d matrix with a rank less than n, it must be singular.
+
+\textbf{Case 2:} ${n \geq d}$
+
+As mentioned above in (5.7), in this case ${\mathbf{X X^T}}$ will be non-singular with high probability but maybe be ill-conditioned with some finite probability i.e.
+        $${eigvals(\mathbf{X X^T}) \in [-\epsilon,\epsilon]}$$
+In other words, ill-conditioning of ${\mathbf{X X^T}}$ will blow up its inverse resulting in numerical instability while computing ${\mathbf{W^*}}$.
+
+\subsection{What is Regularization ?}
+Regularization is a trick to avoid singularity such as in Case-1 and improve the conditioning for Case-2 by adding some noise along the diagonal of the matrix i.e.
+$${\mathbf{W^* = (\lambda I + X X^T)^{-1}(y^T X)}}$$
+Adding a miniscule noise will reduce singularity & with a sufficient regularization we can also get rid of ill-conditioning
+
+\subsection{How does Regularization ensure that \textbf{W*} is well-conditioned ?}
+Regularization can be visualized as increasing all the eigenvalues by a constant i.e. ,
+\begin{equation}
+    Av = kv \implies (A + \lambda I)v = (\lambda + k)v
+\end{equation}
+
+Singular matrices have an eigenvalue equal to 0 and increasing it by a small amount would make all the eigenvalues non-zero and  the matrix becomes non-singular.
+
+Similarly, for an ill-conditioned matrix we have, ${eigvals(\mathbf{X X^T}) \in [-\epsilon,\epsilon]}$ so increasing all eigenvalues by some sufficient ${\lambda}$ by adding some regularization would make it well conditioned.
+
+
+\textbf{Helper code for Understanding effects of Regularization} : \href{https://colab.research.google.com/drive/1BQGdsfARX5V030_1HJgdRMTezbz7ZbDp?usp=sharing}{\underline{\textit{Hyperlink to helper code}}}.
+
+\section{Group Details and Individual Contribution}
+\centering
+\begin{tabular}{ |l|l|  }
+ \hline
+\textbf{Name} & \textbf{Contribution}
+ \\
+ \hline
+ Modi Jay & Introduction to Regression(5.1), \\ &Applications of Regression(5.1.1)\\
+ \hline
+ Vinit Awale & What happens when $y \not \in \mathcal{R}(X)$ (5.1.2), \\    &Mathematically formulating Linear Regression (5.2) \\
+ \hline
+ Mehul & \\
+ \hline
+ Mithun Balram & Regularization : Overcoming singularity and ill-conditioning (5.3) \\
+ \hline
+ Vedang & \\
+ \hline
+\end{tabular}
+\end{document}
